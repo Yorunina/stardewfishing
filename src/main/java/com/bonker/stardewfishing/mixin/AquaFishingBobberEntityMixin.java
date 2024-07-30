@@ -16,7 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.items.ItemStackHandler;
@@ -34,7 +34,7 @@ import java.util.List;
 @Pseudo
 @Mixin(targets = "com.teammetallurgy.aquaculture.entity.AquaFishingBobberEntity")
 public abstract class AquaFishingBobberEntityMixin extends FishingHook {
-    @Shadow protected abstract List<ItemStack> getLoot(LootParams lootParams, ServerLevel serverLevel);
+    @Shadow protected abstract List<ItemStack> getLoot(LootContext.Builder lootParams, ServerLevel serverLevel);
 
     @Accessor protected abstract ItemStack getFishingRod();
 
@@ -49,12 +49,13 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook {
         }
     }
 
+    @SuppressWarnings("UnreachableCode")
     @Inject(method = "retrieve(Lnet/minecraft/world/item/ItemStack;)I",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z",
                     ordinal = 0),
             cancellable = true)
-    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items, @Local LootParams lootParams, @Local ServerLevel serverLevel) {
+    public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items, @Local LootContext.Builder lootContextBuilder, @Local ServerLevel serverLevel) {
         AquaFishingBobberEntity hook = (AquaFishingBobberEntity) (Object) this;
         ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
         if (player == null) return;
@@ -63,7 +64,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook {
             FishingHookLogic.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(items));
             CriteriaTriggers.FISHING_ROD_HOOKED.trigger(player, pStack, this, items);
             if (hook.hasHook() && hook.getHook().getDoubleCatchChance() > 0.0 && this.random.nextDouble() <= hook.getHook().getDoubleCatchChance()) {
-                List<ItemStack> doubleLoot = getLoot(lootParams, serverLevel);
+                List<ItemStack> doubleLoot = getLoot(lootContextBuilder, serverLevel);
                 if (!doubleLoot.isEmpty()) {
                     MinecraftForge.EVENT_BUS.post(new ItemFishedEvent(doubleLoot, 0, this));
                     FishingHookLogic.getStoredRewards(hook).ifPresent(rewards -> rewards.addAll(doubleLoot));
@@ -75,7 +76,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook {
                 ItemStackHandler rodHandler = AquaFishingRodItem.getHandler(getFishingRod());
                 ItemStack bait = rodHandler.getStackInSlot(1);
                 if (!bait.isEmpty()) {
-                    if (bait.hurt(1, hook.level().random, null)) {
+                    if (bait.hurt(1, player.getLevel().random, null)) {
                         bait.shrink(1);
                         playSound(AquaSounds.BOBBER_BAIT_BREAK.get(), 0.7F, 0.2F);
                     }
@@ -88,7 +89,7 @@ public abstract class AquaFishingBobberEntityMixin extends FishingHook {
             cir.cancel();
         } else {
             FishingHookLogic.modifyRewards(items, 0);
-            player.level().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.getLevel().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }
 }
