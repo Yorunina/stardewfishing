@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
+@SuppressWarnings("UnreachableCode")
 @Mixin(value = FishingHook.class)
 public abstract class FishingHookMixin {
     @Inject(method = "catchingFish", at = @At(value = "HEAD"), cancellable = true)
@@ -44,7 +45,7 @@ public abstract class FishingHookMixin {
             cir.cancel();
         } else {
             FishingHookLogic.modifyRewards(items, 0);
-            player.level().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.getLevel().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         }
     }
 }
