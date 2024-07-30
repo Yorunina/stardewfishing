@@ -3,6 +3,7 @@ package com.bonker.stardewfishing.client.util;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
@@ -30,37 +31,42 @@ public class RenderUtil {
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
-    public static void fillF(PoseStack poseStack, float pMinX, float pMinY, float pMaxX, float pMaxY, float pZ, int pColor) {
+    public static void fillF(PoseStack poseStack, float minX, float minY, float maxX, float maxY, int pColor) {
         Matrix4f matrix4f = poseStack.last().pose();
-        if (pMinX < pMaxX) {
-            float temp = pMinX;
-            pMinX = pMaxX;
-            pMaxX = temp;
+        if (minX < maxX) {
+            float temp = minX;
+            minX = maxX;
+            maxX = temp;
         }
 
-        if (pMinY < pMaxY) {
-            float temp = pMinY;
-            pMinY = pMaxY;
-            pMaxY = temp;
+        if (minY < maxY) {
+            float temp = minY;
+            minY = maxY;
+            maxY = temp;
         }
 
         float alpha =  FastColor.ARGB32.alpha(pColor) / 255.0F;
         float red = FastColor.ARGB32.red(pColor) / 255.0F;
         float green = FastColor.ARGB32.green(pColor) / 255.0F;
         float blue = FastColor.ARGB32.blue(pColor) / 255.0F;
-        VertexConsumer vertexconsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lightning()); // fuck it
-        vertexconsumer.vertex(matrix4f, pMinX, pMinY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMinX, pMaxY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMaxX, pMaxY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMaxX, pMinY, pZ).color(red, green, blue, alpha).endVertex();
+
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        bufferbuilder.vertex(matrix4f, minX, minY, 0).color(red, green, blue, alpha).endVertex();
+        bufferbuilder.vertex(matrix4f, minX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        bufferbuilder.vertex(matrix4f, maxX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        bufferbuilder.vertex(matrix4f, maxX, minY, 0).color(red, green, blue, alpha).endVertex();
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
-    /*public static void drawRotatedAround(PoseStack poseStack, float radians, float pivotX, float pivotY, Runnable runnable) {
+    public static void drawRotated(PoseStack poseStack, float radians, Runnable runnable) {
         poseStack.pushPose();
-        poseStack.rotateAround(Vector3f.ZN.rotation(radians), pivotX, pivotY, 0);
+        poseStack.mulPose(Vector3f.ZN.rotation(radians));
         runnable.run();
         poseStack.popPose();
-    }*/
+    }
 
     public static void drawWithAlpha(float alpha, Runnable runnable) {
         RenderSystem.setShaderColor(1, 1, 1, alpha);

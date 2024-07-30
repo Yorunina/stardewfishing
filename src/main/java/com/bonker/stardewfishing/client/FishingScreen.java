@@ -99,10 +99,13 @@ public class FishingScreen extends Screen {
                 // draw progress bar
                 float progress = progressBar.getInterpolated(partialTick);
                 int color = Mth.hsvToRgb(progress / 3.0F, 1.0F, 1.0F) | 0xFF000000;
-                RenderUtil.fillF(poseStack, leftPos + 33, topPos + 148, leftPos + 37, topPos + 148 - progress * 145, 0, color);
+                RenderUtil.fillF(poseStack, leftPos + 33, topPos + 148, leftPos + 37, topPos + 148 - progress * 145, color);
 
                 // draw handle
-                RenderUtil.blitF(poseStack, TEXTURE, leftPos + 5, topPos + 129, 47, 0, 8, 3);
+                RenderUtil.drawRotated(poseStack, handleRot.getInterpolated(partialTick), () -> {
+                    RenderUtil.blitF(poseStack, TEXTURE, leftPos + 5, topPos + 129, 38, 37, 16, 3);
+                });
+
 
                 // render PERFECT!
                 if (status == Status.SUCCESS && accuracy == 1) {

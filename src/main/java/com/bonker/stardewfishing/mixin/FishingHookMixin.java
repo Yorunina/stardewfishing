@@ -31,8 +31,8 @@ public abstract class FishingHookMixin {
 
     @Inject(method = "retrieve",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z"),
-            cancellable = true)
+                    target = "Lnet/minecraftforge/eventbus/api/IEventBus;post(Lnet/minecraftforge/eventbus/api/Event;)Z")
+    )
     public void retrieve(ItemStack pStack, CallbackInfoReturnable<Integer> cir, @Local List<ItemStack> items) {
         FishingHook hook = (FishingHook) (Object) this;
         ServerPlayer player = (ServerPlayer) hook.getPlayerOwner();
