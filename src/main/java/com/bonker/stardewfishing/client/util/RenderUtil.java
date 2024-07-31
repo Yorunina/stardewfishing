@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
@@ -49,15 +51,15 @@ public class RenderUtil {
         float green = FastColor.ARGB32.green(pColor) / 255.0F;
         float blue = FastColor.ARGB32.blue(pColor) / 255.0F;
 
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        bufferbuilder.vertex(matrix4f, minX, minY, 0).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.vertex(matrix4f, minX, maxY, 0).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, maxY, 0).color(red, green, blue, alpha).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, minY, 0).color(red, green, blue, alpha).endVertex();
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        VertexConsumer vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lightning());
+        vertexConsumer.vertex(matrix4f, minX, minY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, minX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, maxX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, maxX, minY, 0).color(red, green, blue, alpha).endVertex();
+        // flush
+        RenderSystem.disableDepthTest();
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+        RenderSystem.enableDepthTest();
     }
 
     public static void drawRotatedAround(PoseStack poseStack, ResourceLocation texture, float radians, float x, float y, float pivotX, float pivotY,
