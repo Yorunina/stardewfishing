@@ -102,10 +102,10 @@ public class FishingScreen extends Screen {
                 RenderUtil.fillF(poseStack, leftPos + 33, topPos + 148, leftPos + 37, topPos + 148 - progress * 145, color);
 
                 // draw handle
-                RenderUtil.drawRotated(poseStack, handleRot.getInterpolated(partialTick), () -> {
-                    RenderUtil.blitF(poseStack, TEXTURE, leftPos + 5, topPos + 129, 38, 37, 16, 3);
-                });
-
+                RenderUtil.drawRotatedAround(poseStack, TEXTURE, handleRot.getInterpolated(partialTick),
+                        leftPos + 5, topPos + 129,
+                        leftPos + 6.5f, topPos + 130.5f,
+                        47, 0, 8, 3);
 
                 // render PERFECT!
                 if (status == Status.SUCCESS && accuracy == 1) {

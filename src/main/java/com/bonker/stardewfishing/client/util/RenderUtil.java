@@ -4,16 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 
 public class RenderUtil {
     public static void blitF(PoseStack poseStack, ResourceLocation texture, float x, float y, int uOffset, int vOffset, int uWidth, int vHeight) {
-        float maxX = x + uWidth;
-        float maxY = y + vHeight;
         float minU = uOffset / 256F;
         float minV = vOffset / 256F;
         float maxU = (uOffset + uWidth) / 256F;
@@ -21,14 +17,17 @@ public class RenderUtil {
         
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
         Matrix4f matrix4f = poseStack.last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(matrix4f, x, y, 0).uv(minU, minV).endVertex();
-        bufferbuilder.vertex(matrix4f, x, maxY, 0).uv(minU, maxV).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, maxY, 0).uv(maxU, maxV).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, y, 0).uv(maxU, minV).endVertex();
+        bufferbuilder.vertex(matrix4f, 0, 0, 0).uv(minU, minV).endVertex();
+        bufferbuilder.vertex(matrix4f, 0, vHeight, 0).uv(minU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, uWidth, vHeight, 0).uv(maxU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, uWidth, 0, 0).uv(maxU, minV).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
+        poseStack.popPose();
     }
 
     public static void fillF(PoseStack poseStack, float minX, float minY, float maxX, float maxY, int pColor) {
@@ -61,10 +60,13 @@ public class RenderUtil {
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
-    public static void drawRotated(PoseStack poseStack, float radians, Runnable runnable) {
+    public static void drawRotatedAround(PoseStack poseStack, ResourceLocation texture, float radians, float x, float y, float pivotX, float pivotY,
+                                         int uOffset, int vOffset, int uWidth, int vHeight) {
         poseStack.pushPose();
+        poseStack.translate(pivotX, pivotY, 0);
         poseStack.mulPose(Vector3f.ZN.rotation(radians));
-        runnable.run();
+        poseStack.translate(-pivotX, -pivotY, 0);
+        RenderUtil.blitF(poseStack, texture, x, y, uOffset, vOffset, uWidth, vHeight);
         poseStack.popPose();
     }
 
