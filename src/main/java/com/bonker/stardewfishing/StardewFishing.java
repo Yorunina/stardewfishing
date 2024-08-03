@@ -57,6 +57,6 @@ public class StardewFishing {
     }
 
     private static RegistryObject<SoundEvent> registerSound(String name) {
-        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MODID, name)));
+        return SOUND_EVENTS.register(name, () -> new SoundEvent(new ResourceLocation(MODID, name)));
     }
 }

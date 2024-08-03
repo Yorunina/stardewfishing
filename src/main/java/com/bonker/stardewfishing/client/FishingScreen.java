@@ -8,7 +8,6 @@ import com.bonker.stardewfishing.common.FishBehavior;
 import com.bonker.stardewfishing.common.networking.C2SCompleteMinigamePacket;
 import com.bonker.stardewfishing.common.networking.SFNetworking;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -62,10 +61,8 @@ public class FishingScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(PoseStack poseStack, int pMouseX, int pMouseY, float pPartialTick) {
         final float partialTick = minecraft.getFrameTime();
-
-        PoseStack poseStack = pGuiGraphics.pose();
 
         if (!isPauseScreen()) {
             // render HIT!
@@ -75,39 +72,40 @@ public class FishingScreen extends Screen {
 
             poseStack.pushPose();
             poseStack.scale(scale, scale, 1);
-            RenderUtil.blitF(pGuiGraphics, TEXTURE, x * (1 / scale), y * (1 / scale), 71, 0, HIT_WIDTH, HIT_HEIGHT);
+            RenderUtil.blitF(poseStack, TEXTURE, x * (1 / scale), y * (1 / scale), 71, 0, HIT_WIDTH, HIT_HEIGHT);
             poseStack.popPose();
         } else {
             // darken screen
-            renderBackground(pGuiGraphics);
+            renderBackground(poseStack);
 
             RenderUtil.drawWithShake(poseStack, shake, partialTick, status == Status.SUCCESS || status == Status.FAILURE, () -> {
                 RenderUtil.drawWithBlend(() -> {
                     // draw fishing gui
-                    pGuiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
+                    RenderUtil.blitF(poseStack, TEXTURE, leftPos, topPos, 0, 0, GUI_WIDTH, GUI_HEIGHT);
 
                     // draw bobber
                     RenderUtil.drawWithAlpha(bobberAlpha.getInterpolated(partialTick), () -> {
                         float bobberY = 4 - 36 + (142 - bobberPos.getInterpolated(partialTick));
-                        RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 18, topPos + bobberY, 38, 0, 9, 36);
+                        RenderUtil.blitF(poseStack, TEXTURE, leftPos + 18, topPos + bobberY, 38, 0, 9, 36);
                     });
                 });
 
                 RenderUtil.drawWithShake(poseStack, shake, partialTick, minigame.isBobberOnFish() && status == Status.MINIGAME, () -> {
                     // draw fish
                     float fishY = 4 - 16 + (142 - fishPos.getInterpolated(partialTick));
-                    RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 14, topPos + fishY, 55, 0, 16, 15);
+                    RenderUtil.blitF(poseStack, TEXTURE, leftPos + 14, topPos + fishY, 55, 0, 16, 15);
                 });
 
                 // draw progress bar
                 float progress = progressBar.getInterpolated(partialTick);
                 int color = Mth.hsvToRgb(progress / 3.0F, 1.0F, 1.0F) | 0xFF000000;
-                RenderUtil.fillF(pGuiGraphics, leftPos + 33, topPos + 148, leftPos + 37, topPos + 148 - progress * 145, 0, color);
+                RenderUtil.fillF(poseStack, leftPos + 33, topPos + 148, leftPos + 37, topPos + 148 - progress * 145, color);
 
                 // draw handle
-                RenderUtil.drawRotatedAround(poseStack, handleRot.getInterpolated(partialTick), leftPos + 6.5F, topPos + 130.5F, () -> {
-                    pGuiGraphics.blit(TEXTURE, leftPos + 5, topPos + 129, 47, 0, 8, 3);
-                });
+                RenderUtil.drawRotatedAround(poseStack, TEXTURE, handleRot.getInterpolated(partialTick),
+                        leftPos + 5, topPos + 129,
+                        leftPos + 6.5f, topPos + 130.5f,
+                        47, 0, 8, 3);
 
                 // render PERFECT!
                 if (status == Status.SUCCESS && accuracy == 1) {
@@ -117,7 +115,7 @@ public class FishingScreen extends Screen {
 
                     poseStack.pushPose();
                     poseStack.scale(scale, scale, 1);
-                    RenderUtil.blitF(pGuiGraphics, TEXTURE, x * (1 / scale), y * (1 / scale), 144, 0, PERFECT_WIDTH, PERFECT_HEIGHT);
+                    RenderUtil.blitF(poseStack, TEXTURE, x * (1 / scale), y * (1 / scale), 144, 0, PERFECT_WIDTH, PERFECT_HEIGHT);
                     poseStack.popPose();
                 }
             });

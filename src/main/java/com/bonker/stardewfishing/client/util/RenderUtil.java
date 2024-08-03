@@ -2,18 +2,16 @@ package com.bonker.stardewfishing.client.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Axis;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
-import org.joml.Matrix4f;
 
 public class RenderUtil {
-    public static void blitF(GuiGraphics guiGraphics, ResourceLocation texture, float x, float y, int uOffset, int vOffset, int uWidth, int vHeight) {
-        float maxX = x + uWidth;
-        float maxY = y + vHeight;
+    public static void blitF(PoseStack poseStack, ResourceLocation texture, float x, float y, int uOffset, int vOffset, int uWidth, int vHeight) {
         float minU = uOffset / 256F;
         float minV = vOffset / 256F;
         float maxU = (uOffset + uWidth) / 256F;
@@ -21,46 +19,56 @@ public class RenderUtil {
         
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        Matrix4f matrix4f = guiGraphics.pose().last().pose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        Matrix4f matrix4f = poseStack.last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(matrix4f, x, y, 0).uv(minU, minV).endVertex();
-        bufferbuilder.vertex(matrix4f, x, maxY, 0).uv(minU, maxV).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, maxY, 0).uv(maxU, maxV).endVertex();
-        bufferbuilder.vertex(matrix4f, maxX, y, 0).uv(maxU, minV).endVertex();
+        bufferbuilder.vertex(matrix4f, 0, 0, 0).uv(minU, minV).endVertex();
+        bufferbuilder.vertex(matrix4f, 0, vHeight, 0).uv(minU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, uWidth, vHeight, 0).uv(maxU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, uWidth, 0, 0).uv(maxU, minV).endVertex();
         BufferUploader.drawWithShader(bufferbuilder.end());
+        poseStack.popPose();
     }
 
-    public static void fillF(GuiGraphics guiGraphics, float pMinX, float pMinY, float pMaxX, float pMaxY, float pZ, int pColor) {
-        Matrix4f matrix4f = guiGraphics.pose().last().pose();
-        if (pMinX < pMaxX) {
-            float temp = pMinX;
-            pMinX = pMaxX;
-            pMaxX = temp;
+    public static void fillF(PoseStack poseStack, float minX, float minY, float maxX, float maxY, int pColor) {
+        Matrix4f matrix4f = poseStack.last().pose();
+        if (minX < maxX) {
+            float temp = minX;
+            minX = maxX;
+            maxX = temp;
         }
 
-        if (pMinY < pMaxY) {
-            float temp = pMinY;
-            pMinY = pMaxY;
-            pMaxY = temp;
+        if (minY < maxY) {
+            float temp = minY;
+            minY = maxY;
+            maxY = temp;
         }
 
         float alpha =  FastColor.ARGB32.alpha(pColor) / 255.0F;
         float red = FastColor.ARGB32.red(pColor) / 255.0F;
         float green = FastColor.ARGB32.green(pColor) / 255.0F;
         float blue = FastColor.ARGB32.blue(pColor) / 255.0F;
-        VertexConsumer vertexconsumer = guiGraphics.bufferSource().getBuffer(RenderType.gui());
-        vertexconsumer.vertex(matrix4f, pMinX, pMinY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMinX, pMaxY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMaxX, pMaxY, pZ).color(red, green, blue, alpha).endVertex();
-        vertexconsumer.vertex(matrix4f, pMaxX, pMinY, pZ).color(red, green, blue, alpha).endVertex();
-        guiGraphics.flush();
+
+        VertexConsumer vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lightning());
+        vertexConsumer.vertex(matrix4f, minX, minY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, minX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, maxX, maxY, 0).color(red, green, blue, alpha).endVertex();
+        vertexConsumer.vertex(matrix4f, maxX, minY, 0).color(red, green, blue, alpha).endVertex();
+        // flush
+        RenderSystem.disableDepthTest();
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+        RenderSystem.enableDepthTest();
     }
 
-    public static void drawRotatedAround(PoseStack poseStack, float radians, float pivotX, float pivotY, Runnable runnable) {
+    public static void drawRotatedAround(PoseStack poseStack, ResourceLocation texture, float radians, float x, float y, float pivotX, float pivotY,
+                                         int uOffset, int vOffset, int uWidth, int vHeight) {
         poseStack.pushPose();
-        poseStack.rotateAround(Axis.ZN.rotation(radians), pivotX, pivotY, 0);
-        runnable.run();
+        poseStack.translate(pivotX, pivotY, 0);
+        poseStack.mulPose(Vector3f.ZN.rotation(radians));
+        poseStack.translate(-pivotX, -pivotY, 0);
+        RenderUtil.blitF(poseStack, texture, x, y, uOffset, vOffset, uWidth, vHeight);
         poseStack.popPose();
     }
 

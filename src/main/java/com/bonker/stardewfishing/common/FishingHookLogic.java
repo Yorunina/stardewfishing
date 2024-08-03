@@ -64,7 +64,7 @@ public class FishingHookLogic {
     }
 
     public static void endMinigame(Player player, boolean success, double accuracy) {
-        if (success && !player.level().isClientSide) {
+        if (success && !player.getLevel().isClientSide) {
             modifyRewards((ServerPlayer) player, accuracy);
             giveRewards((ServerPlayer) player, accuracy);
         }
@@ -108,7 +108,7 @@ public class FishingHookLogic {
 
         FishingHook hook = player.fishing;
         getStoredRewards(hook).ifPresent(rewards -> {
-            ItemFishedEvent event = new ItemFishedEvent(rewards, hook.onGround() ? 2 : 1, hook);
+            ItemFishedEvent event = new ItemFishedEvent(rewards, hook.isOnGround() ? 2 : 1, hook);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
                 hook.discard();
@@ -117,7 +117,7 @@ public class FishingHookLogic {
 
             player.getItemInHand(hand).hurtAndBreak(event.getRodDamage(), player, p -> p.broadcastBreakEvent(hand));
 
-            ServerLevel level = player.serverLevel();
+            ServerLevel level = player.getLevel();
             for (ItemStack reward : rewards) {
                 if (reward.is(ItemTags.FISHES)) {
                     player.awardStat(Stats.FISH_CAUGHT);
@@ -135,7 +135,7 @@ public class FishingHookLogic {
                 level.addFreshEntity(new ExperienceOrb(level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, exp));
             }
 
-            player.level().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.getLevel().playSound(null, player, StardewFishing.PULL_ITEM.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
         });
     }
 
