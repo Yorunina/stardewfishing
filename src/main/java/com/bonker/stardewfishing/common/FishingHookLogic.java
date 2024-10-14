@@ -4,6 +4,9 @@ import com.bonker.stardewfishing.SFConfig;
 import com.bonker.stardewfishing.StardewFishing;
 import com.bonker.stardewfishing.common.networking.S2CStartMinigamePacket;
 import com.bonker.stardewfishing.common.networking.SFNetworking;
+import com.bonker.stardewfishing.compat.kubejs.MiniGameEndJS;
+import com.bonker.stardewfishing.compat.kubejs.MiniGameStartJS;
+import com.bonker.stardewfishing.compat.kubejs.SFEvents;
 import com.bonker.stardewfishing.server.FishBehaviorReloadListener;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -50,23 +53,32 @@ public class FishingHookLogic {
         return entity.getCapability(CapProvider.CAP).map(cap -> cap.rewards);
     }
 
-    public static void startMinigame(ServerPlayer player) {
-        if (player.fishing == null) return;
-
-        SFNetworking.sendToPlayer(player, new S2CStartMinigamePacket(
-                FishBehaviorReloadListener.getBehavior(
-                        getStoredRewards(player.fishing)
-                                .flatMap(rewards -> rewards.stream()
-                                        .filter(stack -> stack.is(StardewFishing.STARTS_MINIGAME))
-                                        .findFirst()
-                                ).orElse(null))
-        ));
+    public static void setStoreRewards(FishingHook entity, ArrayList<ItemStack> itemStacks) {
+        entity.getCapability(CapProvider.CAP).map(cap -> cap.rewards).ifPresent(rewards -> {
+            rewards.clear();
+            rewards.addAll(itemStacks);
+        });
     }
 
-    public static void endMinigame(Player player, boolean success, double accuracy) {
+    public static void startMinigame(ServerPlayer player) {
+        if (player.fishing == null) return;
+        FishBehavior fishBehavior = FishBehaviorReloadListener.getBehavior(
+                getStoredRewards(player.fishing)
+                        .flatMap(rewards -> rewards.stream()
+                                .filter(stack -> stack.is(StardewFishing.STARTS_MINIGAME))
+                                .findFirst()
+                        ).orElse(null));
+        var e = new MiniGameStartJS(player, fishBehavior, player.level());
+        SFEvents.MINIGAME_START.post(e);
+        SFNetworking.sendToPlayer(player, new S2CStartMinigamePacket(fishBehavior));
+    }
+
+    public static void endMinigame(ServerPlayer player, boolean success, double accuracy) {
+        var e = new MiniGameEndJS(player, success, accuracy, player.level());
+        SFEvents.MINIGAME_END.post(e);
         if (success && !player.level().isClientSide) {
-            modifyRewards((ServerPlayer) player, accuracy);
-            giveRewards((ServerPlayer) player, accuracy);
+            modifyRewards(player, accuracy);
+            giveRewards(player, accuracy);
         }
 
         if (player.fishing != null) {
@@ -150,7 +162,8 @@ public class FishingHookLogic {
     }
 
     private static class CapProvider implements ICapabilityProvider {
-        private static final Capability<FishingHookLogic> CAP = CapabilityManager.get(new CapabilityToken<>() {});
+        private static final Capability<FishingHookLogic> CAP = CapabilityManager.get(new CapabilityToken<>() {
+        });
         private static final ResourceLocation NAME = new ResourceLocation(StardewFishing.MODID, "hook");
 
         private final LazyOptional<FishingHookLogic> optional = LazyOptional.of(FishingHookLogic::new);

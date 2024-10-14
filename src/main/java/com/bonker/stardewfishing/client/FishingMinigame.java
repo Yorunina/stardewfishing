@@ -72,15 +72,15 @@ public class FishingMinigame {
             fishIdleTicks++;
             if (Math.abs(fishVelocity) > 0) {
                 boolean up = fishVelocity > 0;
-                fishVelocity -= (up ? behavior.upAcceleration() : behavior.downAcceleration()) * Math.signum(fishVelocity);
+                fishVelocity -= (up ? behavior.getUpAcceleration() : behavior.getDownAcceleration()) * Math.signum(fishVelocity);
                 if (fishVelocity == 0 || up && fishVelocity < 0 || !up && fishVelocity > 0) {
                     fishVelocity = 0;
                 }
             }
         } else {
             double distanceLeft = fishTarget - fishPos;
-            double acceleration = (distanceLeft > 0 ? behavior.upAcceleration() : behavior.downAcceleration()) * Math.signum(distanceLeft);
-            fishVelocity = Mth.clamp(fishVelocity + acceleration, -behavior.topSpeed(), behavior.topSpeed());
+            double acceleration = (distanceLeft > 0 ? behavior.getUpAcceleration() : behavior.getDownAcceleration()) * Math.signum(distanceLeft);
+            fishVelocity = Mth.clamp(fishVelocity + acceleration, -behavior.getTopSpeed(), behavior.getTopSpeed());
         }
 
         fishPos += fishVelocity;

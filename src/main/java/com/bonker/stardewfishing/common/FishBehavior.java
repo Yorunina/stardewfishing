@@ -7,14 +7,32 @@ import net.minecraft.util.Mth;
 
 import java.util.Random;
 
-public record FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation) {
+public class FishBehavior {
+    private int idleTime;
+    private float topSpeed;
+    private float upAcceleration;
+    private float downAcceleration;
+    private int avgDistance;
+    private int moveVariation;
+
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation) {
+        this.idleTime = idleTime;
+        this.topSpeed = topSpeed;
+        this.upAcceleration = upAcceleration;
+        this.downAcceleration = downAcceleration;
+        this.avgDistance = avgDistance;
+        this.moveVariation = moveVariation;
+    }
+
+
+
     public static final Codec<FishBehavior> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.INT.fieldOf("idle_time").forGetter(FishBehavior::idleTime),
-            Codec.FLOAT.fieldOf("top_speed").forGetter(FishBehavior::topSpeed),
-            Codec.FLOAT.fieldOf("up_acceleration").forGetter(FishBehavior::upAcceleration),
-            Codec.FLOAT.fieldOf("down_acceleration").forGetter(FishBehavior::downAcceleration),
-            Codec.INT.fieldOf("avg_distance").forGetter(FishBehavior::avgDistance),
-            Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::moveVariation)
+            Codec.INT.fieldOf("idle_time").forGetter(FishBehavior::getIdleTime),
+            Codec.FLOAT.fieldOf("top_speed").forGetter(FishBehavior::getTopSpeed),
+            Codec.FLOAT.fieldOf("up_acceleration").forGetter(FishBehavior::getUpAcceleration),
+            Codec.FLOAT.fieldOf("down_acceleration").forGetter(FishBehavior::getDownAcceleration),
+            Codec.INT.fieldOf("avg_distance").forGetter(FishBehavior::getAvgDistance),
+            Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::getMoveVariation)
     ).apply(inst, FishBehavior::new));
 
     public static final int MAX_HEIGHT = 127;
@@ -66,5 +84,42 @@ public record FishBehavior(int idleTime, float topSpeed, float upAcceleration, f
         int distance = random.nextInt(shortestDistance, longestDistance + 1);
 
         return Mth.clamp(oldPos + distance * (goingUp ? 1 : -1), 0, MAX_HEIGHT);
+    }
+
+    public int getIdleTime() {
+        return idleTime;
+    }
+    public void setIdleTime(int idleTime) {
+        this.idleTime = idleTime;
+    }
+    public float getDownAcceleration() {
+        return downAcceleration;
+    }
+    public void setDownAcceleration(float downAcceleration) {
+        this.downAcceleration = downAcceleration;
+    }
+    public float getTopSpeed() {
+        return topSpeed;
+    }
+    public void setTopSpeed(float topSpeed) {
+        this.topSpeed = topSpeed;
+    }
+    public float getUpAcceleration() {
+        return upAcceleration;
+    }
+    public void setUpAcceleration(float upAcceleration) {
+        this.upAcceleration = upAcceleration;
+    }
+    public int getAvgDistance() {
+        return avgDistance;
+    }
+    public void setAvgDistance(int avgDistance) {
+        this.avgDistance = avgDistance;
+    }
+    public int getMoveVariation() {
+        return moveVariation;
+    }
+    public void setMoveVariation(int moveVariation) {
+        this.moveVariation = moveVariation;
     }
 }
