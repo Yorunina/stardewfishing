@@ -14,14 +14,18 @@ public class FishBehavior {
     private float downAcceleration;
     private int avgDistance;
     private int moveVariation;
+    private String fishTexture;
+    private int moveType;
 
-    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation) {
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, int moveType) {
         this.idleTime = idleTime;
         this.topSpeed = topSpeed;
         this.upAcceleration = upAcceleration;
         this.downAcceleration = downAcceleration;
         this.avgDistance = avgDistance;
         this.moveVariation = moveVariation;
+        this.fishTexture = fishTexture;
+        this.moveType = moveType;
     }
 
 
@@ -32,13 +36,15 @@ public class FishBehavior {
             Codec.FLOAT.fieldOf("up_acceleration").forGetter(FishBehavior::getUpAcceleration),
             Codec.FLOAT.fieldOf("down_acceleration").forGetter(FishBehavior::getDownAcceleration),
             Codec.INT.fieldOf("avg_distance").forGetter(FishBehavior::getAvgDistance),
-            Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::getMoveVariation)
+            Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::getMoveVariation),
+            Codec.STRING.fieldOf("fish_texture").forGetter(FishBehavior::getFishTexture),
+            Codec.INT.fieldOf("move_type").forGetter(FishBehavior::getMoveType)
     ).apply(inst, FishBehavior::new));
 
     public static final int MAX_HEIGHT = 127;
 
     public FishBehavior(FriendlyByteBuf buf) {
-        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt());
+        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readVarInt());
     }
 
     public void writeToBuffer(FriendlyByteBuf buf) {
@@ -121,5 +127,17 @@ public class FishBehavior {
     }
     public void setMoveVariation(int moveVariation) {
         this.moveVariation = moveVariation;
+    }
+    public String getFishTexture() {
+        return fishTexture;
+    }
+    public void setFishTexture(String fishTexture) {
+        this.fishTexture = fishTexture;
+    }
+    public int getMoveType() {
+        return moveType;
+    }
+    public void setMoveType(int moveType) {
+        this.moveType = moveType;
     }
 }

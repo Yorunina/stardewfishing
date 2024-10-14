@@ -54,11 +54,13 @@ public class FishingScreen extends Screen {
 
     public int reelSoundTimer = -1;
     private int creakSoundTimer = 0;
+    private ResourceLocation fishTexture;
 
     public FishingScreen(FishBehavior behavior) {
         super(TITLE);
         this.minigame = new FishingMinigame(this, behavior);
         this.progressBar = new Animation(minigame.getProgress());
+        this.fishTexture = new ResourceLocation(behavior.getFishTexture());
     }
 
     @Override
@@ -96,7 +98,7 @@ public class FishingScreen extends Screen {
                 RenderUtil.drawWithShake(poseStack, shake, partialTick, minigame.isBobberOnFish() && status == Status.MINIGAME, () -> {
                     // draw fish
                     float fishY = 4 - 16 + (142 - fishPos.getInterpolated(partialTick));
-                    RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 14, topPos + fishY, 55, 0, 16, 15);
+                    RenderUtil.blitF(pGuiGraphics, this.fishTexture, leftPos + 14, topPos + fishY, 55, 0, 16, 15);
                 });
 
                 // draw progress bar
