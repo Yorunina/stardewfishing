@@ -28,7 +28,7 @@ public class FishingMinigame {
     private int fishIdleTicks = 0;
 
     private boolean bobberOnFish = true;
-    private int points = POINTS_TO_FINISH / 5;
+    private float points = POINTS_TO_FINISH / 5;
     private int successTicks = 0;
     private int totalTicks = 0;
 
@@ -114,12 +114,12 @@ public class FishingMinigame {
         }
 
         if (bobberOnFish) {
-            points += 1;
+            points += behavior.getPointGain();
             if (points >= POINTS_TO_FINISH) {
                 screen.setResult(true, (double) successTicks / totalTicks);
             }
         } else {
-            points -= 1;
+            points -= behavior.getPointLoss();
             if (points <= 0) {
                 screen.setResult(false, 0);
             }

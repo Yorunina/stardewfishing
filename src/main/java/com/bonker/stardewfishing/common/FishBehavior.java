@@ -16,6 +16,9 @@ public class FishBehavior {
     private int moveVariation;
     private String fishTexture;
     private int moveType;
+    private float pointGain;
+    private float pointLoss;
+
 
     public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, int moveType) {
         this.idleTime = idleTime;
@@ -26,6 +29,20 @@ public class FishBehavior {
         this.moveVariation = moveVariation;
         this.fishTexture = fishTexture;
         this.moveType = moveType;
+        this.pointGain = 1;
+        this.pointLoss = 1;
+    }
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, int moveType, float pointGain, float pointLoss) {
+        this.idleTime = idleTime;
+        this.topSpeed = topSpeed;
+        this.upAcceleration = upAcceleration;
+        this.downAcceleration = downAcceleration;
+        this.avgDistance = avgDistance;
+        this.moveVariation = moveVariation;
+        this.fishTexture = fishTexture;
+        this.moveType = moveType;
+        this.pointGain = pointGain;
+        this.pointLoss = pointLoss;
     }
 
 
@@ -44,7 +61,7 @@ public class FishBehavior {
     public static final int MAX_HEIGHT = 127;
 
     public FishBehavior(FriendlyByteBuf buf) {
-        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readVarInt());
+        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readVarInt(), buf.readFloat(), buf.readFloat());
     }
 
     public void writeToBuffer(FriendlyByteBuf buf) {
@@ -54,6 +71,10 @@ public class FishBehavior {
         buf.writeFloat(downAcceleration);
         buf.writeVarInt(avgDistance);
         buf.writeVarInt(moveVariation);
+        buf.writeUtf(fishTexture);
+        buf.writeVarInt(moveType);
+        buf.writeFloat(pointGain);
+        buf.writeFloat(pointLoss);
     }
 
     public boolean shouldMoveNow(int idleTicks, Random random) {
@@ -139,5 +160,15 @@ public class FishBehavior {
     }
     public void setMoveType(int moveType) {
         this.moveType = moveType;
+    }
+    public float getPointGain() {return pointGain;}
+    public void setPointGain(float pointGain) {
+        this.pointGain = pointGain;
+    }
+    public float getPointLoss() {
+        return pointLoss;
+    }
+    public void setPointLoss(float pointLoss) {
+        this.pointLoss = pointLoss;
     }
 }
