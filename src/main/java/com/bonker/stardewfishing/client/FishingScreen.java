@@ -98,7 +98,7 @@ public class FishingScreen extends Screen {
                 RenderUtil.drawWithShake(poseStack, shake, partialTick, minigame.isBobberOnFish() && status == Status.MINIGAME, () -> {
                     // draw fish
                     float fishY = 4 - 16 + (142 - fishPos.getInterpolated(partialTick));
-                    RenderUtil.blitF(pGuiGraphics, this.fishTexture, leftPos + 14, topPos + fishY, 55, 0, 16, 15);
+                    RenderUtil.blitF(pGuiGraphics, this.fishTexture, leftPos + 14, topPos + fishY, 0, 0, 16, 16, 16, 16);
                 });
 
                 // draw progress bar

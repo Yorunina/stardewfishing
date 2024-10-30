@@ -8,9 +8,6 @@ import java.util.Random;
 
 public class FishingMinigame {
     public static final int POINTS_TO_FINISH = 120;
-
-    private static final float UP_ACCELERATION = 0.7F;
-    private static final float GRAVITY = -0.7F;
     private static final int MAX_BOBBER_HEIGHT = 106;
     private static final int MAX_FISH_HEIGHT = FishBehavior.MAX_HEIGHT;
 
@@ -43,9 +40,9 @@ public class FishingMinigame {
             if (bobberVelocity < 0) {
                 bobberVelocity *= 0.9;
             }
-            bobberVelocity += UP_ACCELERATION;
+            bobberVelocity += behavior.getBobberUpAcceleration();
         } else if (bobberPos > 0) {
-            bobberVelocity += GRAVITY;
+            bobberVelocity += behavior.getGravity();
         }
 
         bobberPos += bobberVelocity;
@@ -54,7 +51,7 @@ public class FishingMinigame {
             bobberPos = MAX_BOBBER_HEIGHT;
         } else if (bobberPos <= 0) {
             bobberPos = 0;
-            if (bobberVelocity < 2 * GRAVITY) {
+            if (bobberVelocity < 2 * behavior.getGravity()) {
                 bobberVelocity *= -0.4;
             } else {
                 bobberVelocity = 0;

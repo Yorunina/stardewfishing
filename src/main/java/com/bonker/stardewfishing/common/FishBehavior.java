@@ -15,12 +15,13 @@ public class FishBehavior {
     private int avgDistance;
     private int moveVariation;
     private String fishTexture;
-    private int moveType;
-    private float pointGain;
+    private float gravity;
+    private float bobberUpAcceleration;
     private float pointLoss;
+    private float pointGain;
 
 
-    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, int moveType) {
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, float gravity, float bobberUpAcceleration, float pointLoss, float pointGain) {
         this.idleTime = idleTime;
         this.topSpeed = topSpeed;
         this.upAcceleration = upAcceleration;
@@ -28,24 +29,15 @@ public class FishBehavior {
         this.avgDistance = avgDistance;
         this.moveVariation = moveVariation;
         this.fishTexture = fishTexture;
-        this.moveType = moveType;
-        this.pointGain = 1;
-        this.pointLoss = 1;
-    }
-    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, int moveType, float pointGain, float pointLoss) {
-        this.idleTime = idleTime;
-        this.topSpeed = topSpeed;
-        this.upAcceleration = upAcceleration;
-        this.downAcceleration = downAcceleration;
-        this.avgDistance = avgDistance;
-        this.moveVariation = moveVariation;
-        this.fishTexture = fishTexture;
-        this.moveType = moveType;
-        this.pointGain = pointGain;
+        this.gravity = gravity;
+        this.bobberUpAcceleration = bobberUpAcceleration;
         this.pointLoss = pointLoss;
+        this.pointGain = pointGain;
     }
 
-
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture) {
+        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F);
+    }
 
     public static final Codec<FishBehavior> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("idle_time").forGetter(FishBehavior::getIdleTime),
@@ -54,27 +46,30 @@ public class FishBehavior {
             Codec.FLOAT.fieldOf("down_acceleration").forGetter(FishBehavior::getDownAcceleration),
             Codec.INT.fieldOf("avg_distance").forGetter(FishBehavior::getAvgDistance),
             Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::getMoveVariation),
-            Codec.STRING.fieldOf("fish_texture").forGetter(FishBehavior::getFishTexture),
-            Codec.INT.fieldOf("move_type").forGetter(FishBehavior::getMoveType)
+            Codec.STRING.fieldOf("fish_texture").forGetter(FishBehavior::getFishTexture)
     ).apply(inst, FishBehavior::new));
 
     public static final int MAX_HEIGHT = 127;
 
     public FishBehavior(FriendlyByteBuf buf) {
-        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readVarInt(), buf.readFloat(), buf.readFloat());
+        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
     }
+//    public FishBehavior(FriendlyByteBuf buf) {
+//        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf());
+//    }
 
     public void writeToBuffer(FriendlyByteBuf buf) {
-        buf.writeVarInt(idleTime);
-        buf.writeFloat(topSpeed);
-        buf.writeFloat(upAcceleration);
-        buf.writeFloat(downAcceleration);
-        buf.writeVarInt(avgDistance);
-        buf.writeVarInt(moveVariation);
-        buf.writeUtf(fishTexture);
-        buf.writeVarInt(moveType);
-        buf.writeFloat(pointGain);
-        buf.writeFloat(pointLoss);
+        buf.writeVarInt(getIdleTime());
+        buf.writeFloat(getTopSpeed());
+        buf.writeFloat(getUpAcceleration());
+        buf.writeFloat(getDownAcceleration());
+        buf.writeVarInt(getAvgDistance());
+        buf.writeVarInt(getMoveVariation());
+        buf.writeUtf(getFishTexture());
+        buf.writeFloat(getGravity());
+        buf.writeFloat(getBobberUpAcceleration());
+        buf.writeFloat(getPointLoss());
+        buf.writeFloat(getPointGain());
     }
 
     public boolean shouldMoveNow(int idleTicks, Random random) {
@@ -114,61 +109,69 @@ public class FishBehavior {
     }
 
     public int getIdleTime() {
-        return idleTime;
+        return this.idleTime;
     }
     public void setIdleTime(int idleTime) {
         this.idleTime = idleTime;
     }
     public float getDownAcceleration() {
-        return downAcceleration;
+        return this.downAcceleration;
     }
     public void setDownAcceleration(float downAcceleration) {
         this.downAcceleration = downAcceleration;
     }
     public float getTopSpeed() {
-        return topSpeed;
+        return this.topSpeed;
     }
     public void setTopSpeed(float topSpeed) {
         this.topSpeed = topSpeed;
     }
     public float getUpAcceleration() {
-        return upAcceleration;
+        return this.upAcceleration;
     }
     public void setUpAcceleration(float upAcceleration) {
         this.upAcceleration = upAcceleration;
     }
     public int getAvgDistance() {
-        return avgDistance;
+        return this.avgDistance;
     }
     public void setAvgDistance(int avgDistance) {
         this.avgDistance = avgDistance;
     }
     public int getMoveVariation() {
-        return moveVariation;
+        return this.moveVariation;
     }
     public void setMoveVariation(int moveVariation) {
         this.moveVariation = moveVariation;
     }
     public String getFishTexture() {
-        return fishTexture;
+        return this.fishTexture;
     }
     public void setFishTexture(String fishTexture) {
         this.fishTexture = fishTexture;
     }
-    public int getMoveType() {
-        return moveType;
+    public float getGravity() {
+        return this.gravity;
     }
-    public void setMoveType(int moveType) {
-        this.moveType = moveType;
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
     }
-    public float getPointGain() {return pointGain;}
-    public void setPointGain(float pointGain) {
-        this.pointGain = pointGain;
+    public float getBobberUpAcceleration() {
+        return this.bobberUpAcceleration;
+    }
+    public void setBobberUpAcceleration(float bobberUpAcceleration) {
+        this.bobberUpAcceleration = bobberUpAcceleration;
     }
     public float getPointLoss() {
-        return pointLoss;
+        return this.pointLoss;
     }
     public void setPointLoss(float pointLoss) {
         this.pointLoss = pointLoss;
+    }
+    public float getPointGain() {
+        return this.pointGain;
+    }
+    public void setPointGain(float pointGain) {
+        this.pointGain = pointGain;
     }
 }
