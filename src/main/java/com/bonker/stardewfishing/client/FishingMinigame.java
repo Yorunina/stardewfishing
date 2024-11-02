@@ -8,7 +8,6 @@ import java.util.Random;
 
 public class FishingMinigame {
     public static final int POINTS_TO_FINISH = 120;
-    private static final int MAX_BOBBER_HEIGHT = 106;
     private static final int MAX_FISH_HEIGHT = FishBehavior.MAX_HEIGHT;
 
     private final Random random = new Random();
@@ -28,10 +27,12 @@ public class FishingMinigame {
     private float points = POINTS_TO_FINISH / 5;
     private int successTicks = 0;
     private int totalTicks = 0;
+    private int maxBobberHeight = 106;
 
     public FishingMinigame(FishingScreen screen, FishBehavior behavior) {
         this.screen = screen;
         this.behavior = behavior;
+        this.maxBobberHeight = maxBobberHeight - behavior.getBobberHeight();
     }
 
     public void tick(boolean mouseDown) {
@@ -46,9 +47,9 @@ public class FishingMinigame {
         }
 
         bobberPos += bobberVelocity;
-        if (bobberPos > MAX_BOBBER_HEIGHT) {
+        if (bobberPos > this.maxBobberHeight) {
             bobberVelocity = 0;
-            bobberPos = MAX_BOBBER_HEIGHT;
+            bobberPos = this.maxBobberHeight;
         } else if (bobberPos <= 0) {
             bobberPos = 0;
             if (bobberVelocity < 2 * behavior.getGravity()) {
@@ -95,7 +96,7 @@ public class FishingMinigame {
 
         // game logic
         int min = Mth.floor(bobberPos) - 2;
-        int max = Mth.ceil(bobberPos) + 24;
+        int max = Mth.ceil(bobberPos) + 24 + behavior.getBobberHeight();
         boolean wasOnFish = bobberOnFish;
         bobberOnFish = fishPos >= min && fishPos <= max;
 

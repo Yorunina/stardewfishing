@@ -55,12 +55,14 @@ public class FishingScreen extends Screen {
     public int reelSoundTimer = -1;
     private int creakSoundTimer = 0;
     private ResourceLocation fishTexture;
+    private FishBehavior fishBehavior;
 
     public FishingScreen(FishBehavior behavior) {
         super(TITLE);
         this.minigame = new FishingMinigame(this, behavior);
         this.progressBar = new Animation(minigame.getProgress());
         this.fishTexture = new ResourceLocation(behavior.getFishTexture());
+        this.fishBehavior = behavior;
     }
 
     @Override
@@ -90,8 +92,10 @@ public class FishingScreen extends Screen {
 
                     // draw bobber
                     RenderUtil.drawWithAlpha(bobberAlpha.getInterpolated(partialTick), () -> {
-                        float bobberY = 4 - 36 + (142 - bobberPos.getInterpolated(partialTick));
-                        RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 18, topPos + bobberY, 38, 0, 9, 36);
+                        float bobberY = 4 - 36 + (142 - bobberPos.getInterpolated(partialTick)) - fishBehavior.getBobberHeight();
+                        RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 18, topPos + bobberY,
+                                38, 0, 9, 36, 256F, 256F,
+                                leftPos + 27, topPos + bobberY + fishBehavior.getBobberHeight() + 36);
                     });
                 });
 

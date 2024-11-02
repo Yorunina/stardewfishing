@@ -31,6 +31,24 @@ public class RenderUtil {
         BufferUploader.drawWithShader(bufferbuilder.end());
     }
 
+    public static void blitF(GuiGraphics guiGraphics, ResourceLocation texture, float x, float y, int uOffset, int vOffset, int uWidth, int vHeight, float allWidth, float allHeight, float maxX, float maxY) {
+        float minU = uOffset / allWidth;
+        float minV = vOffset / allHeight;
+        float maxU = (uOffset + uWidth) / allWidth;
+        float maxV = (vOffset + vHeight) / allHeight;
+
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        Matrix4f matrix4f = guiGraphics.pose().last().pose();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.vertex(matrix4f, x, y, 0).uv(minU, minV).endVertex();
+        bufferbuilder.vertex(matrix4f, x, maxY, 0).uv(minU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, maxX, maxY, 0).uv(maxU, maxV).endVertex();
+        bufferbuilder.vertex(matrix4f, maxX, y, 0).uv(maxU, minV).endVertex();
+        BufferUploader.drawWithShader(bufferbuilder.end());
+    }
+
     public static void blitF(GuiGraphics guiGraphics, ResourceLocation texture, float x, float y, int uOffset, int vOffset, int uWidth, int vHeight, float allWidth, float allHeight) {
         float maxX = x + uWidth;
         float maxY = y + vHeight;

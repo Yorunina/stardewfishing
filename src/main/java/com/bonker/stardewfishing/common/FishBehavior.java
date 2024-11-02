@@ -19,9 +19,9 @@ public class FishBehavior {
     private float bobberUpAcceleration;
     private float pointLoss;
     private float pointGain;
+    private int bobberHeight;
 
-
-    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, float gravity, float bobberUpAcceleration, float pointLoss, float pointGain) {
+    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture, float gravity, float bobberUpAcceleration, float pointLoss, float pointGain, int bobberHeight) {
         this.idleTime = idleTime;
         this.topSpeed = topSpeed;
         this.upAcceleration = upAcceleration;
@@ -33,10 +33,11 @@ public class FishBehavior {
         this.bobberUpAcceleration = bobberUpAcceleration;
         this.pointLoss = pointLoss;
         this.pointGain = pointGain;
+        this.bobberHeight = bobberHeight;
     }
 
     public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture) {
-        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F);
+        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F, 0);
     }
 
     public static final Codec<FishBehavior> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -52,7 +53,7 @@ public class FishBehavior {
     public static final int MAX_HEIGHT = 127;
 
     public FishBehavior(FriendlyByteBuf buf) {
-        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat());
+        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(),  buf.readVarInt());
     }
 //    public FishBehavior(FriendlyByteBuf buf) {
 //        this(buf.readVarInt(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readUtf());
@@ -70,6 +71,7 @@ public class FishBehavior {
         buf.writeFloat(getBobberUpAcceleration());
         buf.writeFloat(getPointLoss());
         buf.writeFloat(getPointGain());
+        buf.writeVarInt(getBobberHeight());
     }
 
     public boolean shouldMoveNow(int idleTicks, Random random) {
@@ -173,5 +175,11 @@ public class FishBehavior {
     }
     public void setPointGain(float pointGain) {
         this.pointGain = pointGain;
+    }
+    public int getBobberHeight() {
+        return this.bobberHeight;
+    }
+    public void setBobberHeight(int bobberHeight) {
+        this.bobberHeight = bobberHeight;
     }
 }
