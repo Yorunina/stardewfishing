@@ -96,7 +96,7 @@ public class FishingMinigame {
 
         // game logic
         int min = Mth.floor(bobberPos) - 2;
-        int max = Mth.ceil(bobberPos) + 24 + behavior.getBobberHeight();
+        int max = Mth.ceil(bobberPos) + behavior.getBobberHeight() - 2;
         boolean wasOnFish = bobberOnFish;
         bobberOnFish = fishPos >= min && fishPos <= max;
 
