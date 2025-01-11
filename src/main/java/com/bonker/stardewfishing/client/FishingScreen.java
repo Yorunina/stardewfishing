@@ -92,10 +92,10 @@ public class FishingScreen extends Screen {
 
                     // draw bobber
                     RenderUtil.drawWithAlpha(bobberAlpha.getInterpolated(partialTick), () -> {
-                        float bobberY = 4 - 36 + (142 - bobberPos.getInterpolated(partialTick)) - fishBehavior.getBobberHeight();
+                        float bobberY = 4 - 12 + (142 - bobberPos.getInterpolated(partialTick)) - fishBehavior.getBobberHeight();
                         RenderUtil.blitF(pGuiGraphics, TEXTURE, leftPos + 18, topPos + bobberY,
                                 38, 0, 9, 36, 256F, 256F,
-                                leftPos + 27, topPos + bobberY + fishBehavior.getBobberHeight() + 36);
+                                leftPos + 27, topPos + bobberY + fishBehavior.getBobberHeight() + 12);
                     });
                 });
 

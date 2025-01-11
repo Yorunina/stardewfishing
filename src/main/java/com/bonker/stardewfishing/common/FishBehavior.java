@@ -37,7 +37,7 @@ public class FishBehavior {
     }
 
     public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture) {
-        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F, 26);
+        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F, 24);
     }
 
     public static final Codec<FishBehavior> CODEC = RecordCodecBuilder.create(inst -> inst.group(

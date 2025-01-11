@@ -27,7 +27,7 @@ public class FishingMinigame {
     private float points = POINTS_TO_FINISH / 5;
     private int successTicks = 0;
     private int totalTicks = 0;
-    private int maxBobberHeight = 106;
+    private int maxBobberHeight = 130;
 
     public FishingMinigame(FishingScreen screen, FishBehavior behavior) {
         this.screen = screen;
