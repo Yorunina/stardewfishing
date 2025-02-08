@@ -77,8 +77,8 @@ public class FishBehaviorReloadListener extends SimplePreparableReloadListener<M
     }
 
     public static FishBehavior getBehavior(@Nullable ItemStack stack) {
-        if (stack == null) return INSTANCE.defaultBehavior;
-        return INSTANCE.fishBehaviors.getOrDefault(stack.getItem(), INSTANCE.defaultBehavior);
+        if (stack == null) return INSTANCE.defaultBehavior.clone();
+        return INSTANCE.fishBehaviors.getOrDefault(stack.getItem(), INSTANCE.defaultBehavior).clone();
     }
 
     private record FishBehaviorList(boolean replace, Map<ResourceLocation, FishBehavior> behaviors, Optional<FishBehavior> defaultBehavior) {

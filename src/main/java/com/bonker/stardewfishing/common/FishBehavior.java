@@ -36,10 +36,6 @@ public class FishBehavior {
         this.bobberHeight = bobberHeight;
     }
 
-    public FishBehavior(int idleTime, float topSpeed, float upAcceleration, float downAcceleration, int avgDistance, int moveVariation, String fishTexture) {
-        this(idleTime,topSpeed, upAcceleration, downAcceleration, avgDistance, moveVariation, fishTexture, -0.7F, 0.7F, 1.0F, 1.0F, 24);
-    }
-
     public static final Codec<FishBehavior> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("idle_time").forGetter(FishBehavior::getIdleTime),
             Codec.FLOAT.fieldOf("top_speed").forGetter(FishBehavior::getTopSpeed),
@@ -47,7 +43,12 @@ public class FishBehavior {
             Codec.FLOAT.fieldOf("down_acceleration").forGetter(FishBehavior::getDownAcceleration),
             Codec.INT.fieldOf("avg_distance").forGetter(FishBehavior::getAvgDistance),
             Codec.INT.fieldOf("move_variation").forGetter(FishBehavior::getMoveVariation),
-            Codec.STRING.fieldOf("fish_texture").forGetter(FishBehavior::getFishTexture)
+            Codec.STRING.fieldOf("fish_texture").forGetter(FishBehavior::getFishTexture),
+            Codec.FLOAT.fieldOf("gravity").forGetter(FishBehavior::getGravity),
+            Codec.FLOAT.fieldOf("bobber_up_acceleration").forGetter(FishBehavior::getBobberUpAcceleration),
+            Codec.FLOAT.fieldOf("point_loss").forGetter(FishBehavior::getPointLoss),
+            Codec.FLOAT.fieldOf("point_gain").forGetter(FishBehavior::getPointGain),
+            Codec.INT.fieldOf("bobber_height").forGetter(FishBehavior::getBobberHeight)
     ).apply(inst, FishBehavior::new));
 
     public static final int MAX_HEIGHT = 127;
@@ -108,6 +109,10 @@ public class FishBehavior {
         int distance = random.nextInt(shortestDistance, longestDistance + 1);
 
         return Mth.clamp(oldPos + distance * (goingUp ? 1 : -1), 0, MAX_HEIGHT);
+    }
+
+    public FishBehavior clone() {
+        return new FishBehavior(this.idleTime, this.topSpeed, this.upAcceleration, this.downAcceleration, this.avgDistance, this.moveVariation, this.fishTexture, this.gravity, this.bobberUpAcceleration, this.pointLoss, this.pointGain, this.bobberHeight);
     }
 
     public int getIdleTime() {
